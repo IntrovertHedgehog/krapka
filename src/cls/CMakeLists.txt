@@ -1,0 +1,5 @@
+file(GLOB_RECURSE CLS_SOURCES *.hpp *.cpp)
+add_library(cls ${CLS_SOURCES})
+target_include_directories(cls INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(cls PUBLIC util)
+target_link_libraries(cls INTERFACE compiler_flags)
