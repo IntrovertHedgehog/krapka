@@ -26,17 +26,17 @@ struct request_header_v2 final : sbase {
   int32_t deserialize(int8_t* buf) override {
     int32_t sz{};
     sz += request_api_key.deserialize(buf + sz);
-    std::cout << "request_api_key: " << request_api_key.val << " consuming "
-              << sz << std::endl;
+    // std::cout << "request_api_key: " << request_api_key.val << " consuming "
+    //           << sz << std::endl;
     sz += request_api_version.deserialize(buf + sz);
-    std::cout << "request_api_version: " << request_api_version.val
-              << " consuming " << sz << std::endl;
+    // std::cout << "request_api_version: " << request_api_version.val
+    //           << " consuming " << sz << std::endl;
     sz += correlation_id.deserialize(buf + sz);
-    std::cout << "correlation_id: " << correlation_id.val << " consuming " << sz
-              << std::endl;
+    // std::cout << "correlation_id: " << correlation_id.val << " consuming " << sz
+    //           << std::endl;
     sz += client_id.deserialize(buf + sz);
-    std::cout << "client_id: " << client_id.val << " consuming " << sz
-              << std::endl;
+    // std::cout << "client_id: " << client_id.val << " consuming " << sz
+    //           << std::endl;
     sz += tagged_fields.deserialize(buf + sz);
     return sz;
   }
@@ -63,17 +63,20 @@ struct request_k18_v4 final : sbase {
   request_header_v2* header;
   scstring client_software_name;
   scstring client_software_version;
+  stagged_fields tagged_fields;
   request_k18_v4(request_header_v2* h) : header(h) {}
   int32_t serialize(int8_t* buf) override {
     int32_t sz{};
     sz += client_software_name.serialize(buf + sz);
     sz += client_software_version.serialize(buf + sz);
+    sz += tagged_fields.serialize(buf + sz);
     return sz;
   }
   int32_t deserialize(int8_t* buf) override {
     int32_t sz{};
     sz += client_software_name.deserialize(buf + sz);
     sz += client_software_version.deserialize(buf + sz);
+    sz += tagged_fields.deserialize(buf + sz);
     return sz;
   }
 };

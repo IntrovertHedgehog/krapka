@@ -6,8 +6,8 @@
 #include "constants.hpp"
 
 void api_api_version_k18(request_k18_v4* req, response_k18_v4* res) {
-  // std::cout << "in func" << std::endl;
-  // std::cout << req->header->request_api_version.val << std::endl;
+  std::cout << "in func" << std::endl;
+  std::cout << req->header->request_api_version.val << std::endl;
   if (req->header->request_api_version.val < API_VERSION_MIN ||
       req->header->request_api_version.val > API_VERSION_MAX) {
     res->error_code = sint16(ERR_UNSUPPORTED_VERSION);
