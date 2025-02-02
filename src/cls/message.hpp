@@ -85,6 +85,7 @@ struct version_info final : sbase {
   sint16 api_key;
   sint16 min_version;
   sint16 max_version;
+  stagged_fields tagged_buffer;
   version_info() = default;
   version_info(int16_t ak, int16_t min, int16_t max)
       : api_key(ak), min_version(min), max_version(max) {}
@@ -93,6 +94,7 @@ struct version_info final : sbase {
     sz += api_key.serialize(buf + sz);
     sz += min_version.serialize(buf + sz);
     sz += max_version.serialize(buf + sz);
+    sz += tagged_buffer.serialize(buf + sz);
     return sz;
   }
   int32_t deserialize(int8_t* buf) override {
@@ -100,6 +102,7 @@ struct version_info final : sbase {
     sz += api_key.deserialize(buf + sz);
     sz += min_version.deserialize(buf + sz);
     sz += max_version.deserialize(buf + sz);
+    sz += tagged_buffer.deserialize(buf + sz);
     return sz;
   }
 };
