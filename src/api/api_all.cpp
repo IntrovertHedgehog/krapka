@@ -18,7 +18,7 @@ void api_api_version_k18(request_k18_v4* req, response_k18_v4* res) {
     res->throttle_time_ms = sint32(0);
     res->tagged_buffer = stagged_fields();
   }
-  // std::cout << "finished k18: ";
-  // std::cout << res->error_code.val << ":" << res->throttle_time_ms.val
-            // << std::endl;
+  std::cout << "finished k18: ";
+  std::cout << res->error_code.val << ":" << res->throttle_time_ms.val
+            << std::endl;
 }

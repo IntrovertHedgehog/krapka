@@ -48,13 +48,13 @@ struct response_header_v1 final : sbase {
   int32_t serialize(int8_t* buf) override {
     int32_t sz{};
     sz += correlation_id.serialize(buf + sz);
-    sz += tagged_fields.serialize(buf + sz);
+    // sz += tagged_fields.serialize(buf + sz);
     return sz;
   }
   int32_t deserialize(int8_t* buf) override {
     int32_t sz{};
     sz += correlation_id.deserialize(buf + sz);
-    sz += tagged_fields.deserialize(buf + sz);
+    // sz += tagged_fields.deserialize(buf + sz);
     return sz;
   }
 };
