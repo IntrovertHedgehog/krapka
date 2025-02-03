@@ -27,26 +27,47 @@ void process_connection(int client_fd, std::atomic<int> *pool) {
   int32_t len_in, len_out;
   while ((len_in = recv(client_fd, in, BUFSIZ, 0)) > 0) {
     int32_t offset{};
-    // while (offset < len_in) {
-    offset += sizeof(int32_t);
-    request_header_v2 req_header;
-    response_header_v1 res_header;
-    offset += req_header.deserialize(in + offset);
-    res_header.correlation_id = req_header.correlation_id;
+    while (offset < len_in) {
+      int32_t orig_offset{offset};
+      sint32 msg_len;
+      offset += msg_len.deserialize(in + offset);
 
-    if (req_header.request_api_key.val == 18) {
-      request_k18_v4 req(&req_header);
-      response_k18_v4 res(&res_header);
-      offset += req.deserialize(in + offset);
-      std::cout << "read " << offset << " characters" << std::endl;
-      api_api_version_k18(&req, &res);
-      len_out = write_message(out, &res);
+      request_header_v2 req_header;
+      response_header_v1 res_header;
+      offset += req_header.deserialize(in + offset);
+      res_header.correlation_id = req_header.correlation_id;
+
+      switch (req_header.request_api_key.val) {
+        case 18: {
+          request_k18_v4 req(&req_header);
+          response_k18_v4 res(&res_header);
+          offset += req.deserialize(in + offset);
+          // std::cout << "read " << offset << " characters" << std::endl;
+          api_api_version_k18_v4(&req, &res);
+          len_out = write_message(out, &res);
+          break;
+        }
+        case 75: {
+          std::cout << "key 75 " << std::endl;
+          request_k75_v0 req(&req_header);
+          response_k75_v0 res(&res_header);
+          offset += req.deserialize(in + offset);
+
+          std::cout << "done deserializing request " << std:: endl;
+
+          api_describe_topic_partitions(&req, &res);
+          len_out = write_message(out, &res);
+          break;
+        }
+        default:
+          std::cout << "no api match" << std::endl;
+      }
+
+      send(client_fd, out, len_out, 0);
+      offset = orig_offset + sizeof(int32_t) + msg_len.val;
+      std::cout << "done sending " << len_in << std::endl
+                << "offset " << offset << " len " << len_in << std::endl;
     }
-
-    send(client_fd, out, len_out, 0);
-    std::cout << "done sending " << len_in << std::endl
-              << "offset " << offset << " len " << len_in << std::endl;
-    // }
   }
 
   close(client_fd);

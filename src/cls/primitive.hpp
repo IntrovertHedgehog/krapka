@@ -339,7 +339,7 @@ struct snstring : public sbase {
   }
 };
 
-struct scstring : public sbase {
+struct scstring final : public sbase {
   std::string val;
   scstring() = default;
   explicit scstring(std::string v) : val(v) {}
@@ -363,9 +363,9 @@ struct scstring : public sbase {
   }
 };
 
-struct scnstring : public sbase {
+struct scnstring final : public sbase {
   std::string val;
-  bool is_null;
+  bool is_null{false};
   scnstring() : is_null(true) {}
   explicit scnstring(std::string v) : val(v) {}
   int32_t serialize(int8_t* buf) override {
