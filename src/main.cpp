@@ -22,8 +22,6 @@
 #include "message.hpp"
 #include "primitive.hpp"
 
-using std::vector;
-
 void process_connection(int client_fd, std::atomic<int> *pool) {
   int8_t in[BUFSIZ], out[BUFSIZ];
   int32_t len_in, len_out;

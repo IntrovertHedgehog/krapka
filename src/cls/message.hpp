@@ -32,7 +32,8 @@ struct request_header_v2 final : sbase {
     // std::cout << "request_api_version: " << request_api_version.val
     //           << " consuming " << sz << std::endl;
     sz += correlation_id.deserialize(buf + sz);
-    // std::cout << "correlation_id: " << correlation_id.val << " consuming " << sz
+    // std::cout << "correlation_id: " << correlation_id.val << " consuming " <<
+    // sz
     //           << std::endl;
     sz += client_id.deserialize(buf + sz);
     // std::cout << "client_id: " << client_id.val << " consuming " << sz
