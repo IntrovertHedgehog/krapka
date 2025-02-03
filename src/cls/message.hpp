@@ -45,6 +45,21 @@ struct request_header_v2 final : sbase {
   }
 };
 
+
+struct response_header_v0 final : sbase {
+  sint32 correlation_id;
+  int32_t serialize(int8_t* buf) override {
+    int32_t sz{};
+    sz += correlation_id.serialize(buf + sz);
+    return sz;
+  }
+  int32_t deserialize(int8_t* buf) override {
+    int32_t sz{};
+    sz += correlation_id.deserialize(buf + sz);
+    return sz;
+  }
+};
+
 struct response_header_v1 final : sbase {
   sint32 correlation_id;
   stagged_fields tagged_fields;
@@ -173,12 +188,12 @@ struct version_info final : sbase {
 };
 
 struct response_k18_v4 final : sbase {
-  response_header_v1* header;
+  response_header_v0* header;
   sint16 error_code;
   scarray<version_info> version_infos;
   sint32 throttle_time_ms;
   stagged_fields tagged_buffer;
-  response_k18_v4(response_header_v1* h) : header(h) {}
+  response_k18_v4(response_header_v0* h) : header(h) {}
   int32_t serialize(int8_t* buf) override {
     int32_t sz{};
     sz += header->serialize(buf + sz);

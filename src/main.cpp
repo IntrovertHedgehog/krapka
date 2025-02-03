@@ -33,12 +33,12 @@ void process_connection(int client_fd, std::atomic<int> *pool) {
       offset += msg_len.deserialize(in + offset);
 
       request_header_v2 req_header;
-      response_header_v1 res_header;
       offset += req_header.deserialize(in + offset);
-      res_header.correlation_id = req_header.correlation_id;
 
       switch (req_header.request_api_key.val) {
         case 18: {
+          response_header_v0 res_header;
+          res_header.correlation_id = req_header.correlation_id;
           request_k18_v4 req(&req_header);
           response_k18_v4 res(&res_header);
           offset += req.deserialize(in + offset);
@@ -49,11 +49,13 @@ void process_connection(int client_fd, std::atomic<int> *pool) {
         }
         case 75: {
           std::cout << "key 75 " << std::endl;
+          response_header_v1 res_header;
+          res_header.correlation_id = req_header.correlation_id;
           request_k75_v0 req(&req_header);
           response_k75_v0 res(&res_header);
           offset += req.deserialize(in + offset);
 
-          std::cout << "done deserializing request " << std:: endl;
+          std::cout << "done deserializing request " << std::endl;
 
           api_describe_topic_partitions(&req, &res);
           len_out = write_message(out, &res);
