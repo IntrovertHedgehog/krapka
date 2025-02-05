@@ -212,7 +212,6 @@ struct request_k1_v16 final : sbase {
   explicit request_k1_v16(request_header_v2* h) : header(h) {}
   int32_t serialize(int8_t* buf) override {
     int32_t sz{};
-    sz += header->serialize(buf + sz);
     sz += max_wait_ms.serialize(buf + sz);
     sz += min_bytes.serialize(buf + sz);
     sz += max_bytes.serialize(buf + sz);
@@ -227,7 +226,6 @@ struct request_k1_v16 final : sbase {
   }
   int32_t deserialize(int8_t* buf) override {
     int32_t sz{};
-    sz += header->deserialize(buf + sz);
     sz += max_wait_ms.deserialize(buf + sz);
     sz += min_bytes.deserialize(buf + sz);
     sz += max_bytes.deserialize(buf + sz);

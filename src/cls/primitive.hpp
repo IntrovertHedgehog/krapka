@@ -11,6 +11,7 @@
 #include <ios>
 #include <iostream>
 #include <iterator>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <type_traits>
@@ -375,6 +376,7 @@ struct scstring final : public sbase {
     uint32_t n = sz.val - 1;
     val.reserve(n);
     // sz = N + 1
+    std::cout << "copying " << n << " characters into a " << val.capacity() << " sized" << std::endl;
     std::copy(reinterpret_cast<char*>(buf) + len_sz,
               reinterpret_cast<char*>(buf) + len_sz + n,
               std::back_inserter(val));
