@@ -1,8 +1,10 @@
 #ifndef RESPONSE_HEADER_H
 #define RESPONSE_HEADER_H
+#include <sched.h>
+
 #include <cstdint>
 #include <cstring>
-#include <sched.h>
+#include <scoped_allocator>
 
 #include "./primitive.hpp"
 
@@ -211,6 +213,110 @@ struct response_k75_v0 final : sbase {
     sz += topics.serialize(buf + sz);
     sz += next_cursor.serialize(buf + sz);
     sz += tagged_buffer.serialize(buf + sz);
+    return sz;
+  }
+};
+
+struct k1_aborted_transaction final : sbase {
+  sint64 producer_id;
+  sint64 first_offset;
+  stagged_fields tagged_fields;
+  int32_t serialize(int8_t* buf) override {
+    int32_t sz{};
+    sz += producer_id.serialize(buf + sz);
+    sz += first_offset.serialize(buf + sz);
+    sz += tagged_fields.serialize(buf + sz);
+    return sz;
+  }
+  int32_t deserialize(int8_t* buf) override {
+    int32_t sz{};
+    sz += producer_id.deserialize(buf + sz);
+    sz += first_offset.deserialize(buf + sz);
+    sz += tagged_fields.deserialize(buf + sz);
+    return sz;
+  }
+};
+
+struct res_k1_partition final : sbase {
+  sint32 partition_index;
+  sint16 error_code;
+  sint64 high_watermark;
+  sint64 last_stable_offset;
+  sint64 log_start_offset;
+  scarray<k1_aborted_transaction> aborted_transaction;
+  sint32 preferred_read_replica;
+  scarray<sint8> records;
+  stagged_fields tagged_fields;
+  int32_t serialize(int8_t* buf) override {
+    int32_t sz{};
+    sz += partition_index.serialize(buf + sz);
+    sz += error_code.serialize(buf + sz);
+    sz += high_watermark.serialize(buf + sz);
+    sz += last_stable_offset.serialize(buf + sz);
+    sz += log_start_offset.serialize(buf + sz);
+    sz += aborted_transaction.serialize(buf + sz);
+    sz += preferred_read_replica.serialize(buf + sz);
+    sz += records.serialize(buf + sz);
+    sz += tagged_fields.serialize(buf + sz);
+    return sz;
+  }
+  int32_t deserialize(int8_t* buf) override {
+    int32_t sz{};
+    sz += partition_index.deserialize(buf + sz);
+    sz += error_code.deserialize(buf + sz);
+    sz += high_watermark.deserialize(buf + sz);
+    sz += last_stable_offset.deserialize(buf + sz);
+    sz += log_start_offset.deserialize(buf + sz);
+    sz += aborted_transaction.deserialize(buf + sz);
+    sz += preferred_read_replica.deserialize(buf + sz);
+    sz += records.deserialize(buf + sz);
+    sz += tagged_fields.deserialize(buf + sz);
+    return sz;
+  }
+};
+
+struct k1_reponse final : sbase {
+  suuid topic_id;
+  scarray<res_k1_partition> partitions;
+  stagged_fields tagged_fields;
+  int32_t serialize(int8_t* buf) {
+    int32_t sz{};
+    sz += topic_id.serialize(buf + sz);
+    sz += partitions.serialize(buf + sz);
+    tagged_fields.serialize(buf);
+    return sz;
+  }
+  int32_t deserialize(int8_t* buf) {
+    int32_t sz{};
+    sz += topic_id.deserialize(buf + sz);
+    sz += partitions.deserialize(buf + sz);
+    tagged_fields.deserialize(buf);
+    return sz;
+  }
+};
+
+struct response_k1_v16 final : sbase {
+  sint32 throttle_time_ms;
+  sint16 error_code;
+  sint32 session_id;
+  scarray<k1_reponse> responses;
+  stagged_fields tagged_fields;
+  int32_t serialize(int8_t* buf) override {
+    int32_t sz{};
+    sz += throttle_time_ms.serialize(buf + sz);
+    sz += error_code.serialize(buf + sz);
+    sz += session_id.serialize(buf + sz);
+    sz += responses.serialize(buf + sz);
+    sz += tagged_fields.serialize(buf + sz);
+    return sz;
+  }
+  int32_t deserialize(int8_t* buf) override {
+    int32_t sz{};
+    sz += throttle_time_ms.deserialize(buf + sz);
+    sz += error_code.deserialize(buf + sz);
+    sz += session_id.deserialize(buf + sz);
+    sz += responses.deserialize(buf + sz);
+    sz += tagged_fields.deserialize(buf + sz);
     return sz;
   }
 };
