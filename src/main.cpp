@@ -78,8 +78,9 @@ int main(int argc, char *argv[]) {
 
   std::string log_fn;
 
-  // log_fn = "/tmp/kraft-combined-logs/__cluster_metadata-0/00000000000000000000.log";
-  log_fn = "tmp/meta";
+  log_fn =
+      "/tmp/kraft-combined-logs/__cluster_metadata-0/00000000000000000000.log";
+  // log_fn = "tmp/meta";
   // prepare log file
 
   int server_fd = socket(AF_INET, SOCK_STREAM, 0);
