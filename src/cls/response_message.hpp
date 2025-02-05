@@ -100,6 +100,7 @@ struct res_partition final : sbase {
   scarray<sint32> eligible_leader_replicas;
   scarray<sint32> last_known_elr;
   scarray<sint32> offline_replicas;
+  stagged_fields tagged_fields;
   int32_t serialize(int8_t* buf) override {
     int32_t sz{};
     sz += error_code.serialize(buf + sz);
@@ -111,6 +112,7 @@ struct res_partition final : sbase {
     sz += eligible_leader_replicas.serialize(buf + sz);
     sz += last_known_elr.serialize(buf + sz);
     sz += offline_replicas.serialize(buf + sz);
+    sz += tagged_fields.serialize(buf + sz);
     return sz;
   }
   int32_t deserialize(int8_t* buf) override {
@@ -124,6 +126,7 @@ struct res_partition final : sbase {
     sz += eligible_leader_replicas.deserialize(buf + sz);
     sz += last_known_elr.deserialize(buf + sz);
     sz += offline_replicas.deserialize(buf + sz);
+    sz += tagged_fields.deserialize(buf + sz);
     return sz;
   }
 };
