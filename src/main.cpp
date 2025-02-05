@@ -35,6 +35,16 @@ void process_connection(int client_fd, std::atomic<int> *pool,
       offset += req_header.deserialize(in + offset);
 
       switch (req_header.request_api_key.val) {
+        case 1: {
+          response_header_v1 res_header;
+          res_header.correlation_id = req_header.correlation_id;
+          request_k1_v16 req(&req_header);
+          response_k1_v16 res(&res_header);
+          offset += req.deserialize(in + offset);
+          api_fetch_k1_v16(&req, &res, cluster_metadata_log_fn);
+          len_out = write_message(out, &res);
+          break;
+        }
         case 18: {
           response_header_v0 res_header;
           res_header.correlation_id = req_header.correlation_id;

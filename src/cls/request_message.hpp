@@ -209,6 +209,7 @@ struct request_k1_v16 final : sbase {
   scarray<k1_forgotten_topic_data> forgotten_topic_data;
   scstring rack_id;
   stagged_fields tagged_fields;
+  explicit request_k1_v16(request_header_v2* h) : header(h) {}
   int32_t serialize(int8_t* buf) override {
     int32_t sz{};
     sz += header->serialize(buf + sz);

@@ -296,13 +296,16 @@ struct k1_reponse final : sbase {
 };
 
 struct response_k1_v16 final : sbase {
+  response_header_v1* header;
   sint32 throttle_time_ms;
   sint16 error_code;
   sint32 session_id;
   scarray<k1_reponse> responses;
   stagged_fields tagged_fields;
+  explicit response_k1_v16(response_header_v1* h) : header(h) {}
   int32_t serialize(int8_t* buf) override {
     int32_t sz{};
+    sz += header->serialize(buf + sz);
     sz += throttle_time_ms.serialize(buf + sz);
     sz += error_code.serialize(buf + sz);
     sz += session_id.serialize(buf + sz);
@@ -312,6 +315,7 @@ struct response_k1_v16 final : sbase {
   }
   int32_t deserialize(int8_t* buf) override {
     int32_t sz{};
+    sz += header->deserialize(buf + sz);
     sz += throttle_time_ms.deserialize(buf + sz);
     sz += error_code.deserialize(buf + sz);
     sz += session_id.deserialize(buf + sz);
