@@ -1,5 +1,6 @@
 #ifndef RESPONSE_HEADER_H
 #define RESPONSE_HEADER_H
+#include <iostream>
 #include <sched.h>
 
 #include <cstdint>
@@ -283,14 +284,14 @@ struct k1_reponse final : sbase {
     int32_t sz{};
     sz += topic_id.serialize(buf + sz);
     sz += partitions.serialize(buf + sz);
-    tagged_fields.serialize(buf);
+    sz += tagged_fields.serialize(buf);
     return sz;
   }
   int32_t deserialize(int8_t* buf) {
     int32_t sz{};
     sz += topic_id.deserialize(buf + sz);
     sz += partitions.deserialize(buf + sz);
-    tagged_fields.deserialize(buf);
+    sz += tagged_fields.deserialize(buf);
     return sz;
   }
 };
