@@ -64,9 +64,11 @@ void api_fetch_k1_v16(request_k1_v16* req, response_k1_v16* res,
   res->responses.val.clear();
   if (req->header->request_api_version.val < API_VERSION_MIN_1 ||
       req->header->request_api_version.val > API_VERSION_MAX_1) {
+    res->responses.is_null = false;
     for (k1_topic& topic : req->topics.val) {
       k1_reponse& rep = res->responses.val.emplace_back();
       rep.topic_id = topic.topic_id;
+      rep.partitions.is_null = false;
       for (k1_partition& part : topic.partitions.val) {
         res_k1_partition& p = rep.partitions.val.emplace_back();
         p.partition_index = part.partition;
@@ -78,7 +80,7 @@ void api_fetch_k1_v16(request_k1_v16* req, response_k1_v16* res,
         topic_uuid_to_partitions;
     std::unordered_map<std::string, std::string> topic_name_to_uuid;
     read_log(topic_uuid_to_partitions, topic_name_to_uuid, log_fn);
-
+    res->responses.is_null = false;
     for (k1_topic& topic : req->topics.val) {
       k1_reponse& rep = res->responses.val.emplace_back();
       rep.topic_id = topic.topic_id;
@@ -86,6 +88,7 @@ void api_fetch_k1_v16(request_k1_v16* req, response_k1_v16* res,
       bool unkown_topic = topic_uuid_to_partitions.find(topic.topic_id.str()) ==
                           topic_uuid_to_partitions.end();
 
+      rep.partitions.is_null = false;
       for (k1_partition& part : topic.partitions.val) {
         res_k1_partition& p = rep.partitions.val.emplace_back();
         p.partition_index = part.partition;
