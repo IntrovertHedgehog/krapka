@@ -90,7 +90,7 @@ void api_fetch_k1_v16(request_k1_v16* req, response_k1_v16* res,
         res_k1_partition& p = rep.partitions.val.emplace_back();
         p.partition_index = part.partition;
         if (unkown_topic) {
-          p.error_code.val = ERR_UNKNOWN_TOPIC_OR_PARTITION;
+          p.error_code.val = ERR_UNKNOWN_TOPIC;
         } else {
         }
       }

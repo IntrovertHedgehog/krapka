@@ -12,5 +12,6 @@ int const API_VERSION_MAX_1 = 16;
 
 int const ERR_UNSUPPORTED_VERSION = 35;
 int const ERR_UNKNOWN_TOPIC_OR_PARTITION = 3;
+int const ERR_UNKNOWN_TOPIC = 100;
 
 #endif
