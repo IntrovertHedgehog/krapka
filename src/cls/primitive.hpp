@@ -103,6 +103,24 @@ struct sint64 : public sbase {
   }
 };
 
+struct suint64 : public sbase {
+  uint64_t val;
+  suint64() = default;
+  explicit suint64(uint64_t v) : val(v) {}
+  int32_t serialize(int8_t* buf) override {
+    *reinterpret_cast<uint32_t*>(buf) = htonl(val >> 32);
+    *reinterpret_cast<uint32_t*>(buf + sizeof(int32_t)) =
+        htonl(val & 0xffffffff);
+    return sizeof(val);
+  }
+  int32_t deserialize(int8_t* buf) override {
+    val = (static_cast<uint64_t>(ntohl(*reinterpret_cast<uint32_t*>(buf)))
+           << 32) |
+          ntohl(*reinterpret_cast<uint32_t*>(buf + sizeof(uint32_t)));
+    return sizeof(val);
+  }
+};
+
 struct suint32 : public sbase {
   uint32_t val;
   suint32() = default;
@@ -117,7 +135,7 @@ struct suint32 : public sbase {
   }
 };
 
-struct suvint : public sbase {
+struct suvint final : public sbase {
   uint32_t val;
   suvint() = default;
   explicit suvint(uint32_t v) : val(v) {}
@@ -189,6 +207,7 @@ struct suvlong : public sbase {
     do {
       val |= static_cast<uint64_t>(*buf & 0x7f) << order;
       order += 7;
+      ++size;
     } while (*buf++ & 0x80);
     return size;
   }
@@ -306,9 +325,9 @@ struct sstring : public sbase {
 
 struct snstring : public sbase {
   std::string val;
-  bool is_null;
-  snstring() : is_null(true) {}
-  explicit snstring(std::string v) : val(v) {}
+  bool is_null{true};
+  snstring() = default;
+  explicit snstring(std::string v) : val(v), is_null(false) {}
   int32_t serialize(int8_t* buf) override {
     int32_t sz{sizeof(int16_t)};
     if (is_null) {
@@ -365,9 +384,9 @@ struct scstring final : public sbase {
 
 struct scnstring final : public sbase {
   std::string val;
-  bool is_null{false};
-  scnstring() : is_null(true) {}
-  explicit scnstring(std::string v) : val(v) {}
+  bool is_null{true};
+  scnstring() = default;
+  explicit scnstring(std::string v) : val(v), is_null(false) {}
   int32_t serialize(int8_t* buf) override {
     if (is_null) {
       return suvint(0).serialize(buf);
@@ -399,9 +418,9 @@ template <typename T,
           std::enable_if_t<std::is_base_of_v<sbase, T>, bool> = true>
 struct sarray : public sbase {
   std::vector<T> val;
-  bool is_null{false};
-  sarray() : is_null(true) {}
-  explicit sarray(std::vector<T> v) : val(v) {}
+  bool is_null{true};
+  sarray() = default;
+  explicit sarray(std::vector<T> v) : val(v), is_null(false) {}
   int32_t serialize(int8_t* buf) override {
     int32_t size{};
     if (is_null) {
@@ -437,9 +456,9 @@ template <typename T,
           std::enable_if_t<std::is_base_of_v<sbase, T>, bool> = true>
 struct scarray : public sbase {
   std::vector<T> val;
-  bool is_null{false};
-  scarray() : is_null(true) {}
-  explicit scarray(std::vector<T> v) : val(v) {}
+  bool is_null{true};
+  scarray() = default;
+  explicit scarray(std::vector<T> v) : val(v), is_null(false) {}
   int32_t serialize(int8_t* buf) override {
     int32_t size{};
     if (is_null) {

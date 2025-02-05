@@ -10,19 +10,18 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include <iterator>
-#include <map>
 #include <ostream>
-#include <set>
+#include <string>
 #include <thread>
-#include <vector>
 
 #include "api/api_all.hpp"
 #include "constants.hpp"
-#include "message.hpp"
 #include "primitive.hpp"
+#include "request_message.hpp"
+#include "response_message.hpp"
 
-void process_connection(int client_fd, std::atomic<int> *pool) {
+void process_connection(int client_fd, std::atomic<int> *pool,
+                        std::string const &cluster_metadata_log_fn) {
   int8_t in[BUFSIZ], out[BUFSIZ];
   int32_t len_in, len_out;
   while ((len_in = recv(client_fd, in, BUFSIZ, 0)) > 0) {
@@ -48,16 +47,12 @@ void process_connection(int client_fd, std::atomic<int> *pool) {
           break;
         }
         case 75: {
-          std::cout << "key 75 " << std::endl;
           response_header_v1 res_header;
           res_header.correlation_id = req_header.correlation_id;
           request_k75_v0 req(&req_header);
           response_k75_v0 res(&res_header);
           offset += req.deserialize(in + offset);
-
-          std::cout << "done deserializing request " << std::endl;
-
-          api_describe_topic_partitions(&req, &res);
+          api_describe_topic_partitions(&req, &res, cluster_metadata_log_fn);
           len_out = write_message(out, &res);
           break;
         }
@@ -80,6 +75,12 @@ int main(int argc, char *argv[]) {
   // Disable output buffering
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
+
+  std::string log_fn;
+
+  // log_fn = "/tmp/kraft-combined-logs/__cluster_metadata-0/00000000000000000000.log";
+  log_fn = "tmp/meta";
+  // prepare log file
 
   int server_fd = socket(AF_INET, SOCK_STREAM, 0);
   if (server_fd < 0) {
@@ -134,7 +135,7 @@ int main(int argc, char *argv[]) {
       std::cout << "ran out of thread in pool" << std::endl;
       --pool;
     } else {
-      std::thread t(process_connection, client_fd, &pool);
+      std::thread t(process_connection, client_fd, &pool, log_fn);
       t.detach();
     }
   }

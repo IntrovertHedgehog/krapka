@@ -89,6 +89,40 @@ TEST_CASE("Testing int16", "[int16]") {
   REQUIRE(si.val == -564);
 }
 
+TEST_CASE("Testing int64", "[int32]") {
+  int8_t in[BS], out[BS];
+  int32_t sz;
+
+  sz = sint64(-1).serialize(out);
+  REQUIRE(sz == 8);
+  REQUIRE(tohex(out, sz) == "0xffffffffffffffff");
+
+  sz = sint64(INT64_MAX).serialize(out);
+  REQUIRE(sz == 8);
+  REQUIRE(tohex(out, sz) == "0x7fffffffffffffff");
+
+  sz = suint64(UINT64_MAX).serialize(out);
+  REQUIRE(sz == 8);
+  REQUIRE(tohex(out, sz) == "0xffffffffffffffff");
+
+  sint64 si;
+  REQUIRE(tobuf("0xffffffffffffffff", in, BS) != -1);
+  sz = si.deserialize(in);
+  REQUIRE(sz == 8);
+  REQUIRE(si.val == -1);
+
+  REQUIRE(tobuf("0x7ffffffffffffff", in, BS) != -1);
+  sz = si.deserialize(in);
+  REQUIRE(sz == 8);
+  REQUIRE(si.val == INT64_MAX);
+
+  suint64 sui;
+  REQUIRE(tobuf("0xffffffffffffffff", in, BS) != -1);
+  sz = sui.deserialize(in);
+  REQUIRE(sz == 8);
+  REQUIRE(sui.val == UINT64_MAX);
+}
+
 TEST_CASE("Testing suvint", "[suvint]") {
   int8_t in[BS], out[BS];
   int32_t sz;
