@@ -27,6 +27,7 @@ void api_api_version_k18_v4(request_k18_v4* req, response_k18_v4* res) {
     res->version_infos = scarray<version_info>(std::vector<version_info>{
         version_info(18, API_VERSION_MIN_18, API_VERSION_MAX_18),
         version_info(75, API_VERSION_MIN_75, API_VERSION_MAX_75),
+        version_info(1, API_VERSION_MIN_1, API_VERSION_MAX_1),
     });
     res->throttle_time_ms = sint32(0);
     res->tagged_buffer = stagged_fields();
