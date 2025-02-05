@@ -2,6 +2,7 @@
 #define RESPONSE_HEADER_H
 #include <cstdint>
 #include <cstring>
+#include <sched.h>
 
 #include "./primitive.hpp"
 
@@ -94,11 +95,11 @@ struct res_partition final : sbase {
   sint32 partition_index;
   sint32 leader_id;
   sint32 leader_epoch;
-  sint32 replica_nodes;
-  sint32 isr_nodes;
-  sint32 eligible_leader_replicas;
-  sint32 last_known_elr;
-  sint32 offline_replicas;
+  scarray<sint32> replica_nodes;
+  scarray<sint32> isr_nodes;
+  scarray<sint32> eligible_leader_replicas;
+  scarray<sint32> last_known_elr;
+  scarray<sint32> offline_replicas;
   int32_t serialize(int8_t* buf) override {
     int32_t sz{};
     sz += error_code.serialize(buf + sz);
