@@ -10,9 +10,7 @@
 #include <memory>
 #include <ostream>
 #include <string>
-#include <type_traits>
 
-#include "hexutil.hpp"
 #include "primitive.hpp"
 
 struct record_string_t final : sbase {
@@ -152,14 +150,11 @@ struct record_value_t final : sbase {
   }
   int32_t deserialize(int8_t *buf) override {
     int32_t sz{};
-    std::cout << "record value from " << tohex(buf, 30) << std::endl;
     svint len;
     sz += len.deserialize(buf + sz);
     sz += frame_version.deserialize(buf + sz);
     sz += type.deserialize(buf + sz);
     sz += version.deserialize(buf + sz);
-    std::cout << "parsing record val type " << (int)type.val << " at " << sz
-              << std::endl;
     switch (type.val) {
       case 2:
         value.reset(new record_value_type2_t());
@@ -205,16 +200,13 @@ struct record final : sbase {
   int32_t deserialize(int8_t *buf) override {
     int32_t sz{};
     svint len;
-    std::cout << "record dese" << tohex(buf, 16) << std::endl;
     sz += len.deserialize(buf + sz);
     sz += attributes.deserialize(buf + sz);
     sz += timestamp_delta.deserialize(buf + sz);
     sz += offset_delta.deserialize(buf + sz);
     sz += key.deserialize(buf + sz);
-    std::cout << "len til value " << sz << std::endl;
     sz += value.deserialize(buf + sz);
     sz += headers.deserialize(buf + sz);
-    std::cout << "done record " << tohex(buf + sz, 16) << std::endl;
     return sz;
   }
 };
@@ -227,8 +219,8 @@ struct record_batch final : sbase {
   sint32 crc;
   sint16 attributes;
   sint32 last_offset_data;
-  suint64 base_timestamp;
-  suint64 max_timestamp;
+  sint64 base_timestamp;
+  sint64 max_timestamp;
   sint64 producer_id;
   sint16 producer_epoch;
   sint32 base_sequence;
@@ -252,7 +244,6 @@ struct record_batch final : sbase {
   }
   int32_t deserialize(int8_t *buf) override {
     int32_t sz{};
-    std::cout  << "starting batch at " << tohex(buf, 16) << std::endl;
     sz += base_offset.deserialize(buf + sz);
     sz += batch_length.deserialize(buf + sz);
     sz += partition_leader_epoch.deserialize(buf + sz);
@@ -265,7 +256,6 @@ struct record_batch final : sbase {
     sz += producer_id.deserialize(buf + sz);
     sz += producer_epoch.deserialize(buf + sz);
     sz += base_sequence.deserialize(buf + sz);
-    std::cout << "records parsing at " << sz << std::endl;
     sz += records.deserialize(buf + sz);
     return sz;
   }

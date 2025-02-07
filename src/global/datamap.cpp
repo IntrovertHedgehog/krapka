@@ -2,11 +2,15 @@
 
 #include <memory.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <cstdio>
+#include <experimental/filesystem>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <ostream>
 #include <string>
 
@@ -15,6 +19,9 @@
 
 std::unordered_map<std::string, std::vector<std::shared_ptr<res_partition>>>
     topic_uuid_to_partitions;
+
+std::unordered_map<std::string, std::unordered_map<int32_t, scarray<sint8>>>
+    topic_uuid_to_partition_to_records;
 
 std::unordered_map<std::string, std::string> topic_name_to_uuid;
 
@@ -39,6 +46,8 @@ void initialize() {
           std::shared_ptr<record_value_type2_t> rv =
               std::dynamic_pointer_cast<record_value_type2_t>(r.value.value);
           topic_name_to_uuid[rv->topic_name.val] = rv->topic_uuid.str();
+          std::cout << "adding topic " << rv->topic_uuid.str() << ":"
+                    << rv->topic_name.val << std::endl;
           break;
         }
         case 3:
@@ -48,19 +57,42 @@ void initialize() {
           p->error_code.val = 0;
           p->partition_index.val = rv->paritition_id.val;
           topic_uuid_to_partitions[rv->topic_uuid.str()].push_back(p);
+          std::cout << "adding partition " << p->partition_index.val << " into "
+                    << rv->topic_uuid.str() << std::endl;
       }
     }
   }
 
-  std::filesystem::recursive_directory_iterator dir(
-      "/tmp/kraft-combined-logs/");
+  for (auto &topic : topic_name_to_uuid) {
+    auto part_it = topic_uuid_to_partitions.find(topic.second);
+    if (part_it == topic_uuid_to_partitions.end()) continue;
+    for (auto &p : part_it->second) {
+      std::string pathname = std::format("/tmp/kraft-combined-logs/{}-{}",
+                                         topic.first, p->partition_index.val);
+      if (!std::filesystem::is_directory(pathname)) continue;
 
-  for (std::filesystem::directory_entry const &d : dir) {
-    std::cout << "content of " << d.path().string() << std::endl;
-    std::fstream fs(d.path());
-    char buf[BUFSIZ];
-    fs.read(buf, BUFSIZ);
-    std::cout << tohex(reinterpret_cast<int8_t *>(buf), fs.gcount())
-              << std::endl;
+      std::filesystem::directory_iterator dir(pathname);
+
+      for (std::filesystem::directory_entry const &d : dir) {
+        std::fstream fs(d.path());
+        char buf[BUFSIZ];
+        fs.read(buf, BUFSIZ);
+        auto &ve = topic_uuid_to_partition_to_records[topic.second]
+                                                     [p->partition_index.val];
+        ve.is_null = false;
+
+        std::transform(reinterpret_cast<int8_t *>(buf),
+                       reinterpret_cast<int8_t *>(buf + fs.gcount()),
+                       std::back_inserter(ve.val),
+                       [](int8_t c) { return sint8(c); });
+        //
+        // ve.insert(ve.end(), batch.records.val.begin(),
+        // batch.records.val.end()); std::cout << "populated " <<
+        // batch.records.val.size()
+        //           << " records into "
+        //           << std::format("{}-{}", topic.first,
+        //           p->partition_index.val);
+      }
+    }
   }
 }

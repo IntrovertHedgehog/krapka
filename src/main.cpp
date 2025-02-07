@@ -10,12 +10,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include <memory>
 #include <ostream>
-#include <string>
 #include <thread>
-#include <unordered_map>
-#include <vector>
 
 #include "api/api_all.hpp"
 #include "constants.hpp"

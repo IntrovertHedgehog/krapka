@@ -46,9 +46,12 @@ void api_fetch_k1_v16(request_k1_v16* req, response_k1_v16* res) {
       for (k1_partition& part : topic.partitions.val) {
         res_k1_partition& p = rep.partitions.val.emplace_back();
         p.partition_index = part.partition;
+        p.records.is_null = false;
         if (unkown_topic) {
           p.error_code.val = ERR_UNKNOWN_TOPIC;
         } else {
+          p.records = topic_uuid_to_partition_to_records[topic.topic_id.str()]
+                                                        [p.partition_index.val];
         }
       }
     }
