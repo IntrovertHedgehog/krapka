@@ -12,6 +12,7 @@
 #include <iostream>
 #include <iterator>
 #include <ostream>
+#include <regex>
 #include <string>
 
 #include "hexutil.hpp"
@@ -74,6 +75,11 @@ void initialize() {
       std::filesystem::directory_iterator dir(pathname);
 
       for (std::filesystem::directory_entry const &d : dir) {
+        // only read well-formatted log file name
+        std::regex log_fn_pattern("^\\d{20}.log");
+        if (!std::regex_match(d.path().filename().string(), log_fn_pattern))
+          continue;
+
         std::fstream fs(d.path());
         char buf[BUFSIZ];
         fs.read(buf, BUFSIZ);
