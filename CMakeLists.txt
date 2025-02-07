@@ -11,6 +11,7 @@ target_compile_options(compiler_flags INTERFACE -Wall -Wextra -Wpedantic)
 
 add_subdirectory(src/util)
 add_subdirectory(src/cls)
+add_subdirectory(src/global)
 add_subdirectory(src/api)
 
 find_package(Catch2 3 REQUIRED)
@@ -21,4 +22,4 @@ target_link_libraries(test_primitive PUBLIC Catch2::Catch2WithMain cls compiler_
 file(GLOB_RECURSE SOURCE_FILES main.cpp)
 
 add_executable(kafka ${SOURCE_FILES})
-target_link_libraries(kafka PUBLIC util cls api compiler_flags)
+target_link_libraries(kafka PUBLIC global util cls api compiler_flags)

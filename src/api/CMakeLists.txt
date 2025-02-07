@@ -1,5 +1,5 @@
 file(GLOB_RECURSE API_SOURCES *.hpp *.cpp)
 add_library(api ${API_SOURCES})
 target_include_directories(api INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(api PUBLIC util cls)
+target_link_libraries(api PUBLIC util cls global)
 target_link_libraries(api INTERFACE compiler_flags)

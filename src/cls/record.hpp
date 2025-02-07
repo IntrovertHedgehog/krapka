@@ -65,7 +65,6 @@ struct record_value_type12_t final : record_value_gen_t {
     int32_t sz{};
     sz += name.deserialize(buf + sz);
     sz += feature_level.deserialize(buf + sz);
-    std::cout << "read name and feat lvl " << name.val << ":" << (int) feature_level.val << std::endl;
     return sz;
   }
 };

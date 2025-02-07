@@ -10,18 +10,21 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <memory>
 #include <ostream>
 #include <string>
 #include <thread>
+#include <unordered_map>
+#include <vector>
 
 #include "api/api_all.hpp"
 #include "constants.hpp"
+#include "datamap.hpp"
 #include "primitive.hpp"
 #include "request_message.hpp"
 #include "response_message.hpp"
 
-void process_connection(int client_fd, std::atomic<int> *pool,
-                        std::string const &cluster_metadata_log_fn) {
+void process_connection(int client_fd, std::atomic<int> *pool) {
   int8_t in[BUFSIZ], out[BUFSIZ];
   int32_t len_in, len_out;
   while ((len_in = recv(client_fd, in, BUFSIZ, 0)) > 0) {
@@ -41,7 +44,7 @@ void process_connection(int client_fd, std::atomic<int> *pool,
           request_k1_v16 req(&req_header);
           response_k1_v16 res(&res_header);
           offset += req.deserialize(in + offset);
-          api_fetch_k1_v16(&req, &res, cluster_metadata_log_fn);
+          api_fetch_k1_v16(&req, &res);
           len_out = write_message(out, &res);
           break;
         }
@@ -62,7 +65,7 @@ void process_connection(int client_fd, std::atomic<int> *pool,
           request_k75_v0 req(&req_header);
           response_k75_v0 res(&res_header);
           offset += req.deserialize(in + offset);
-          api_describe_topic_partitions(&req, &res, cluster_metadata_log_fn);
+          api_describe_topic_partitions(&req, &res);
           len_out = write_message(out, &res);
           break;
         }
@@ -86,12 +89,7 @@ int main(int argc, char *argv[]) {
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
 
-  std::string log_fn;
-
-  log_fn =
-      "/tmp/kraft-combined-logs/__cluster_metadata-0/00000000000000000000.log";
-  // log_fn = "tmp/meta";
-  // prepare log file
+  initialize();
 
   int server_fd = socket(AF_INET, SOCK_STREAM, 0);
   if (server_fd < 0) {
@@ -146,7 +144,7 @@ int main(int argc, char *argv[]) {
       std::cout << "ran out of thread in pool" << std::endl;
       --pool;
     } else {
-      std::thread t(process_connection, client_fd, &pool, log_fn);
+      std::thread t(process_connection, client_fd, &pool);
       t.detach();
     }
   }

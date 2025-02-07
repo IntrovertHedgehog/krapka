@@ -1,0 +1,5 @@
+file(GLOB_RECURSE GLOBAL_SOURCES *.hpp *.cpp)
+add_library(global ${GLOBAL_SOURCES})
+target_include_directories(global INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(global PUBLIC cls)
+target_link_libraries(global INTERFACE compiler_flags)

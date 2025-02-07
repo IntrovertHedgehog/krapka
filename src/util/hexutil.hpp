@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <istream>
-#include <iterator>
 #include <string>
 
 #define TRANS(SRC, DST) \
