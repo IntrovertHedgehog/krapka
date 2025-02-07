@@ -82,6 +82,9 @@ void initialize() {
         ve.is_null = false;
         std::transform(buf, buf + fs.gcount(), std::back_inserter(ve.val),
                        [](char c) { return sint8(c); });
+        std::cout << "read from file " << topic.second << ":"
+                  << p->partition_index.val << " -> "
+                  << tohex((int8_t *)buf, fs.gcount()) << std::endl;
       }
     }
   }
