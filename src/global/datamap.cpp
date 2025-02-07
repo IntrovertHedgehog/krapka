@@ -80,18 +80,8 @@ void initialize() {
         auto &ve = topic_uuid_to_partition_to_records[topic.second]
                                                      [p->partition_index.val];
         ve.is_null = false;
-
-        std::transform(reinterpret_cast<int8_t *>(buf),
-                       reinterpret_cast<int8_t *>(buf + fs.gcount()),
-                       std::back_inserter(ve.val),
-                       [](int8_t c) { return sint8(c); });
-        //
-        // ve.insert(ve.end(), batch.records.val.begin(),
-        // batch.records.val.end()); std::cout << "populated " <<
-        // batch.records.val.size()
-        //           << " records into "
-        //           << std::format("{}-{}", topic.first,
-        //           p->partition_index.val);
+        std::transform(buf, buf + fs.gcount(), std::back_inserter(ve.val),
+                       [](char c) { return sint8(c); });
       }
     }
   }
